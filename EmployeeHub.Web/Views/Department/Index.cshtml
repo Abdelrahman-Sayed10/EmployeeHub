@@ -1,0 +1,30 @@
+﻿@model List<DepartmentDto>
+
+<h2>Departments</h2>
+<p>
+    <a asp-action="Add">Add New Department</a>
+</p>
+
+<table class="table-bordered table-striped table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Description</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var dep in Model)
+        {
+            <tr>
+                <td>@dep.Id</td>
+                <td>@dep.Description</td>
+                <td>
+                    <a asp-action="Update" asp-route-id="@dep.Id">Edit</a> |
+                    <a asp-action="Delete" asp-route-id="@dep.Id"
+                       onclick="return confirm('Sure to delete?');">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

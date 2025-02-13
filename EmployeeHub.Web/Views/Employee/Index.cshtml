@@ -1,0 +1,87 @@
+﻿@model EmployeePagedDto<EmployeeDto>
+
+<h2>Employees (Paged)</h2>
+
+<p>
+    <a asp-action="Add">Add New Employee</a>
+</p>
+
+<div class="table-responsive">
+    <table class="table-hover table-sm table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Active</th>
+                <th>Department</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var emp in Model.Data)
+            {
+                <tr>
+                    <td>@emp.Id</td>
+                    <td>@emp.FullName</td>
+                    <td>@emp.Email</td>
+                    <td>
+                        @if (emp.IsActive)
+                        {
+                            <span style="color: green;">&#10003;</span>
+                        }
+                        else
+                        {
+                            <span style="color: red;">&#10007;</span>
+                        }
+                    </td>
+                    <td>@emp.DepartmentDescription</td>
+                    <td>
+                        <a asp-action="Update" asp-route-id="@emp.Id">Edit</a> |
+                        <a asp-action="Delete" asp-route-id="@emp.Id"
+                           onclick="return confirm('Are you sure?');">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Simple Next/Previous paging controls -->
+<nav aria-label="Page navigation">
+    <ul class="pagination">
+
+        @* Previous button *@
+        @if (Model.PageIndex > 1)
+        {
+            <li class="page-item">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-pageIndex="@(Model.PageIndex - 1)"
+                   asp-route-pageSize="@Model.PageSize">
+                    Previous
+                </a>
+            </li>
+        }
+
+        <li class="page-item disabled">
+            <span class="page-link">
+                Page @Model.PageIndex
+            </span>
+        </li>
+
+        @* Next button *@
+        @if ((Model.PageIndex * Model.PageSize) < Model.TotalCount)
+        {
+            <li class="page-item">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-pageIndex="@(Model.PageIndex + 1)"
+                   asp-route-pageSize="@Model.PageSize">
+                    Next
+                </a>
+            </li>
+        }
+
+    </ul>
+</nav>
