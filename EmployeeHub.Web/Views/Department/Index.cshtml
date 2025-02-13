@@ -6,7 +6,12 @@
 
 <h2>Departments</h2>
 
-<!-- Display error message if available -->
+<p>
+    <a asp-action="Add" class="btn btn-success">
+        <i class="fas fa-plus"></i> Add New Department
+    </a>
+</p>
+
 @if (ViewBag.ErrorMessage != null)
 {
     <div class="alert alert-danger">
@@ -14,7 +19,7 @@
     </div>
 }
 
-<!-- Display a message if there are no departments -->
+
 @if (Model == null || Model.Count == 0)
 {
     <p>No departments found. Try adding a new one.</p>
@@ -50,8 +55,4 @@ else
     </table>
 }
 
-<p>
-    <a asp-action="Add" class="btn btn-success">
-        <i class="fas fa-plus"></i> Add New Department
-    </a>
-</p>
+
