@@ -80,8 +80,8 @@ namespace EmployeeHub.Web.Controllers
             );
             if (!response.IsSuccessStatusCode)
             {
-                ModelState.AddModelError("", "Failed to update department");
-                return View(dto);
+                ViewBag.ErrorMessage = $"Department with ID {dto.Id} not found";
+                return View("Error");
             }
 
             return RedirectToAction("Index");

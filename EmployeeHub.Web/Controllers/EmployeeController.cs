@@ -7,18 +7,6 @@ namespace EmployeeHub.Web.Controllers
     {
         // List employees
         [HttpGet]
-        //public async Task<IActionResult> Index()
-        //{
-        //    var employees = await client.GetFromJsonAsync<List<EmployeeDto>>("/api/Employee/GetAll");
-
-        //    if (employees == null)
-        //    {
-        //        return NotFound("No employees found");
-        //    }
-
-        //    return View(employees);
-        //}
-
         public async Task<IActionResult> Index(int pageIndex = 1, int pageSize = 5)
         {
             // API endpoint for with the QueryString 
