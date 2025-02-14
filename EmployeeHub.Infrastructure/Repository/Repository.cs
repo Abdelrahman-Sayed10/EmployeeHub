@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -49,5 +50,19 @@ public class Repository<T> : IRepository<T> where T : class
         _dbSet.Update(entity);  
         //To avoid compiler warnings on async method without await
         await Task.CompletedTask;   
+    }
+
+    async Task<IEnumerable<T>> IRepository<T>.GetAllAsync(params Expression<Func<T, object>>[] includes)
+    {
+        // Base Query
+        IQueryable<T> query = _dbSet;
+
+        // Apply each include expression
+        foreach (var include in includes)
+        {
+            query = query.Include(include);
+        }
+        // Fetch
+        return await query.ToListAsync();
     }
 }

@@ -24,8 +24,8 @@ else
                     <th>ID</th>
                     <th>Full Name</th>
                     <th>Email</th>
+                    <th>Department</th>
                     <th>Active</th>
-                    <!-- For the Department description -->
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -36,6 +36,7 @@ else
                         <td>@emp.Id</td>
                         <td>@emp.FullName</td>
                         <td>@emp.Email</td>
+                        <td>@emp.DepartmentDescription</td>
                         <td>
                             @if (emp.IsActive)
                             {

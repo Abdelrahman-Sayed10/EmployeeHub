@@ -10,11 +10,11 @@ namespace EmployeeHub.Dtos.EmployeeDtos;
 public class EmployeeAddDto
 {
     [Required(ErrorMessage = "FirstName is required")]
-    [StringLength(50, ErrorMessage = "Max length is 50 chars")]
+    [StringLength(200, ErrorMessage = "Max length is 200 chars")]
     public string FirstName { get; set; } = string.Empty;
 
     [Required]
-    [StringLength(50)]
+    [StringLength(200)]
     public string LastName { get; set; } = string.Empty;
 
     [Required]

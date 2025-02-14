@@ -58,7 +58,7 @@ public class EmployeeService : IEmployeeService
     public async Task<List<EmployeeDto>> GetAllAsync()
     {
         var repo = this.unitOfWork.Repository<Employee>();
-        var employees = await repo.GetAllAsync();
+        var employees = await repo.GetAllAsync(e => e.Department);
 
         // Map domain -> EmployeeDto
         return this.mapper.Map<List<EmployeeDto>>(employees);
@@ -67,7 +67,8 @@ public class EmployeeService : IEmployeeService
     public async Task<EmployeeDto?> GetByIdAsync(int id)
     {
         var repo = this.unitOfWork.Repository<Employee>();
-        var employee = await repo.GetByIdAsync(id);
+        var employees = await repo.GetAllAsync(e => e.Department);
+        var employee = employees.FirstOrDefault(e => e.Id == id); 
         if(employee == null)
             throw new NotFoundException($"Employee not found with ID = {id}.");
 
@@ -80,7 +81,8 @@ public class EmployeeService : IEmployeeService
         if (pageSize < 1) pageSize = 1;
 
         var repo = this.unitOfWork.Repository<Employee>();
-        var employees = await repo.GetAllAsync();  
+
+        var employees = await repo.GetAllAsync(e => e.Department);  
 
         var totalCount = employees.Count();
         var pagedEmployees = employees
