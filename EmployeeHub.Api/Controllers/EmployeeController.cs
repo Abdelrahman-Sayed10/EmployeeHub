@@ -3,12 +3,15 @@ using EmployeeHub.Dtos.EmployeeDtos;
 using EmployeeHub.Dtos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using EmployeeHub.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EmployeeHub.Api.Controllers
 {
+    [Authorize]
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class EmployeeController : ControllerBase
+    public class EmployeeController : BaseController
     {
         private readonly IEmployeeService employeeService;
 
@@ -33,16 +36,22 @@ namespace EmployeeHub.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<EmployeeDto> AddAsync(EmployeeAddDto dto)
+        public async Task<IActionResult> AddAsync(EmployeeAddDto dto)
         {
+            if (!CurrentUserIsAdmin)
+                return Forbid("You must be an admin to add employees.");
+
             var newEmployee = await this.employeeService.AddAsync(dto);
-            return newEmployee;
+            return Ok(newEmployee);
         }
 
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync(int id, EmployeeUpdateDto employeeDto)
         {
+            if (!CurrentUserIsAdmin)
+                return Forbid("You must be an admin to update employees.");
+
             if (employeeDto.Id != id) 
                 return BadRequest("ID mismatch");
             await this.employeeService.UpdateAsync(employeeDto);
@@ -52,6 +61,9 @@ namespace EmployeeHub.Api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
+            if (!CurrentUserIsAdmin)
+                return Forbid("You must be an admin to delete employees.");
+
             await this.employeeService.DeleteAsync(id); 
             return NoContent();
         }
@@ -60,8 +72,15 @@ namespace EmployeeHub.Api.Controllers
         public async Task<IActionResult> GetPagedAsync([FromQuery] int pageIndex = 1,
                                                 [FromQuery] int pageSize = 10)
         {
-            var result = await this.employeeService.GetPagedAsync(pageIndex, pageSize); 
-            return Ok(result);
+            try
+            {
+                var result = await this.employeeService.GetPagedAsync(pageIndex, pageSize);
+                return Ok(result); 
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("An error occured while fetching employees.");
+            }
         }
     }
 }

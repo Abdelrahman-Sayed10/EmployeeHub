@@ -1,10 +1,15 @@
+using EmployeeHub.Api.Middleware;
 using EmployeeHub.Application;
 using EmployeeHub.Application.Contracts.IRepository;
 using EmployeeHub.Application.Contracts.IService;
 using EmployeeHub.Application.Services;
+using EmployeeHub.Dtos.AuthDto;
 using EmployeeHub.Infrastructure;
 using EmployeeHub.Infrastructure.Repository;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,15 +39,47 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 // UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-//Department
+// Department
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 
-//Employee
+// Employee
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+
+// AuthService
+builder.Services.AddScoped<IAuthService, AuthService>();    
 #endregion
+
+#region Jwt
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"])),
+        ValidateIssuer = true,
+        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+        ValidateAudience = true,
+        ValidAudience = builder.Configuration["JwtSettings:Audience"],
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero        
+    };
+});
+#endregion
+
+builder.Services.Configure<GoogleAuthSettings>(
+    builder.Configuration.GetSection("Google")
+);
 
 
 var app = builder.Build();
+
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -51,8 +88,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();

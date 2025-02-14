@@ -7,7 +7,7 @@ namespace EmployeeHub.Api.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class DepartmentController : ControllerBase
+    public class DepartmentController : BaseController
     {
         private readonly IDepartmentService departmentService;
 
@@ -32,15 +32,21 @@ namespace EmployeeHub.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<DepartmentDto> AddDepartmentAsync(DepartmentAddDto departmentDto)
+        public async Task<IActionResult> AddDepartmentAsync(DepartmentAddDto departmentDto)
         {
+            if (!CurrentUserIsAdmin)
+                return Forbid("You must be an admin to add departments.");
+
             var newDepartment = await this.departmentService.AddDepartmentAsync(departmentDto);
-            return newDepartment;
+            return Ok(newDepartment);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateDepartmentAsync(int id, DepartmentDto departmentDto)
         {
+            if (!CurrentUserIsAdmin)
+                return Forbid("You must be an admin to update departments.");
+
             if (departmentDto.Id != id)
                 return BadRequest("ID mismatch");
 
@@ -51,6 +57,9 @@ namespace EmployeeHub.Api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteDepartmentAsync(int id)
         {
+            if (!CurrentUserIsAdmin)
+                return Forbid("You must be an admin to delete departments.");
+
             await departmentService.DeleteDepartmentAsync(id);
             return NoContent();
         }

@@ -1,35 +1,60 @@
 ﻿using EmployeeHub.Dtos.EmployeeDtos;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using System.Text.Json.Serialization;
 
 namespace EmployeeHub.Web.Controllers
 {
     public class EmployeeController : BaseController
     {
-        // List employees
         [HttpGet]
-        public async Task<IActionResult> Index(int pageIndex = 1, int pageSize = 5)
+        public async Task<IActionResult> Index(int pageIndex = 1, int pageSize = 10)
         {
-            // API endpoint for with the QueryString 
-            var apiUrl = $"/api/Employee/GetPaged/paged?pageIndex={pageIndex}&pageSize={pageSize}";
-
-            var pagedResult = await client.GetFromJsonAsync<EmployeePagedDto<EmployeeDto>>(apiUrl);
-
-            if (pagedResult == null || pagedResult.Data.Count == 0)
+            try
             {
-                return View(new EmployeePagedDto<EmployeeDto>
+                var token = HttpContext.Session.GetString("jwtToken");
+                if (string.IsNullOrEmpty(token))
                 {
-                    Data = new List<EmployeeDto>(),
-                    PageIndex = pageIndex,
-                    PageSize = pageSize,
-                    TotalCount = 0
-                });
-            }
+                    TempData["UnauthorizedMessage"] = "Session expired. Please login again.";
+                    return RedirectToAction("Login", "Account");
+                }
 
-            return View(pagedResult);
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+                var response = await client.GetAsync($"/api/Employee/GetPaged/Paged?pageIndex={pageIndex}&pageSize={pageSize}");
+
+                if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    TempData["UnauthorizedMessage"] = "Session expired. Please login again.";
+                    return RedirectToAction("Login", "Account");
+                }
+
+                response.EnsureSuccessStatusCode();
+
+                var content = await response.Content.ReadAsStringAsync();
+                var pagedResult = System.Text.Json.JsonSerializer.Deserialize<EmployeePagedDto<EmployeeDto>>(
+                     content,
+                     new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                return View(pagedResult);
+            }
+            catch (Exception)
+            {
+                TempData["Error"] = "Error loading employees";
+                return RedirectToAction("Index", "Home");
+            }
         }
+
+
+
         [HttpGet]
         public IActionResult Add()
         {
+            if (!ViewBag.CurrentUserIsAdmin)
+            {
+                TempData["UnauthorizedMessage"] = "Only admins can add employees.";
+                return RedirectToAction("Index");
+            }
             return View();
         }
 

@@ -11,11 +11,13 @@ namespace EmployeeHub.Domain.Entities.Operation;
 public class User : AuditEntity<Guid>
 {
     [Required]
-    [MaxLength(200)]
+    [MaxLength(100)]
     public string UserName { get; set; } = string.Empty;
 
     [Required]
-    [MaxLength(200)]
-    public string Password { get; set; } = string.Empty;
+    public string PasswordHash { get; set; } = string.Empty;
+
+    [Required]
+    public string PasswordSalt { get; set; } = string.Empty;
     public bool IsAdmin { get; set; }
 }

@@ -55,4 +55,12 @@ else
     </table>
 }
 
+@if (TempData["UnauthorizedMessage"] != null)
+{
+    <script>
+        $(document).ready(function () {
+            alert("@TempData["UnauthorizedMessage"]");
+        });
+    </script>
+}
 
