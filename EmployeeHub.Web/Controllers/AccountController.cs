@@ -107,11 +107,5 @@ namespace EmployeeHub.Web.Controllers
             return RedirectToAction("Login");
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Logout()
-        {
-            HttpContext.Session.Remove("jwtToken");
-            return RedirectToAction("Login", "Account");
-        }
     }
 }

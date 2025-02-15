@@ -1,9 +1,11 @@
 ﻿using EmployeeHub.Domain.Common;
 using EmployeeHub.Domain.Entities.Operation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,7 +13,12 @@ namespace EmployeeHub.Infrastructure;
 
 public class EmployeeHubDbContext : DbContext
 {
-    public EmployeeHubDbContext(DbContextOptions<EmployeeHubDbContext> options) : base(options) { }
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public EmployeeHubDbContext(DbContextOptions<EmployeeHubDbContext> options, IHttpContextAccessor httpContextAccessor) : base(options)
+    {
+        _httpContextAccessor = httpContextAccessor;
+    }
     public DbSet<Department> Departments => Set<Department>();
     public DbSet<Employee> Employees => Set<Employee>();
     public DbSet<User> Users => Set<User>();
@@ -95,13 +102,9 @@ public class EmployeeHubDbContext : DbContext
         return await base.SaveChangesAsync(cancellationToken);
     }
 
-    /// <summary>
-    /// Should be completed to get the cuser from
-    /// HttpContext
-    /// </summary>
-    /// <returns></returns>
     private string GetCurrentUser()
     {
-        return "System";
+        var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst("userId");
+        return userIdClaim?.Value ?? "UnknownUser";
     }
 }

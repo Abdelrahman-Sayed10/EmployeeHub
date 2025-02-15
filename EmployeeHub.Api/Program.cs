@@ -32,7 +32,6 @@ builder.Services.AddDbContextPool<EmployeeHubDbContext>(options =>
 #endregion
 
 #region DI
-
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
@@ -46,7 +45,10 @@ builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 
 // AuthService
-builder.Services.AddScoped<IAuthService, AuthService>();    
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+// HttpContextAccessor
+builder.Services.AddHttpContextAccessor();
 #endregion
 
 #region Jwt

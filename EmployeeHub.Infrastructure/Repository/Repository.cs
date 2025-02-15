@@ -18,7 +18,7 @@ public class Repository<T> : IRepository<T> where T : class
     {
         _dbSContext = dbSContext;
         //Instead of calling _dbContext.Set<T>() every time
-        //better to store it once in to reduce the overhead
+        //better to store it once to reduce the overhead
         _dbSet = _dbSContext.Set<T>();
     }
     public async Task AddAsync(T entity)
